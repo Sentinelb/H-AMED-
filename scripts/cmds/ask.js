@@ -1,4 +1,4 @@
- const axios = require('axios');
+const axios = require('axios');
 
 async function fetchFromAI(url, params) {
   try {
@@ -10,15 +10,14 @@ async function fetchFromAI(url, params) {
   }
 }
 
-async function getAIResponse(input, userId, messageID) {
+async function getAIResponse(input, userName, userId, messageID) {
   const services = [
-    { url: 'https://ai-tools.replit.app/gpt', params: { prompt: input, uid: userId } },
-    { url: 'https://openaikey-x20f.onrender.com/api', params: { prompt: input } },
-    { url: 'http://fi1.bot-hosting.net:6518/gpt', params: { query: input } },
-    { url: 'https://ai-chat-gpt-4-lite.onrender.com/api/hercai', params: { question: input } }
+    { url: 'https://metoushela-rest-api-tp5g.onrender.com/api/gpt4o?', params: { context: input } },
+    
+    { url: 'https://jonellccprojectapis10.adaptable.app/api/gpt4o', params: { context: input } }
   ];
 
-  let response = "Salut , je suis l'intelligence artificielle créer 𝐩𝐚𝐫 𝗔𝗦𝗜𝗙𝗜𝗪𝗘 𝗡𝗔𝗞𝗔 je suis là pour répondre à tes questions...(⁠◠⁠‿⁠◕⁠)";
+  let response = `𝗛𝗲𝗹𝗹𝗼 𝗮𝘀 𝗮 𝘃𝗶𝗿𝘁𝘂𝗮𝗹 𝗮𝘀𝘀𝗶𝘀𝘁𝗮𝗻𝘁 𝘄𝗵𝗮𝘁 𝗰𝗮𝗻 𝗜 𝗱𝗼 𝘁𝗼 𝗵𝗲𝗹𝗽`;
   let currentIndex = 0;
 
   for (let i = 0; i < services.length; i++) {
@@ -28,7 +27,7 @@ async function getAIResponse(input, userId, messageID) {
       response = data.gpt4 || data.reply || data.response;
       break;
     }
-    currentIndex = (currentIndex + 1) % services.length; // Move to the next service in the cycle
+    currentIndex = (currentIndex + 1) % services.length; // Passer au service suivant
   }
 
   return { response, messageID };
@@ -37,7 +36,7 @@ async function getAIResponse(input, userId, messageID) {
 module.exports = {
   config: {
     name: 'ai',
-    author: 'Arn',
+    author: 'HAMED JUNIOR', // édit by HAMED🧑‍🦯
     role: 0,
     category: 'ai',
     shortDescription: 'ai to ask anything',
@@ -45,24 +44,35 @@ module.exports = {
   onStart: async function ({ api, event, args }) {
     const input = args.join(' ').trim();
     if (!input) {
-      api.sendMessage(`Please provide a question or statement. `, event.threadID, event.messageID);
+      api.sendMessage("𝗛𝗲𝗹𝗹𝗼 𝗮𝘀 𝗮 𝘃𝗶𝗿𝘁𝘂𝗮𝗹 𝗮𝘀𝘀𝗶𝘀𝘁𝗮𝗻𝘁 𝘄𝗵𝗮𝘁 𝗰𝗮𝗻 𝗜 𝗱𝗼 𝘁𝗼 𝗵𝗲𝗹𝗽  ✰..✰", event.threadID, event.messageID);
       return;
     }
 
-    const { response, messageID } = await getAIResponse(input, event.senderID, event.messageID);
-    api.sendMessage(` \n══════𝗔𝗦𝗜𝗙𝗜𝗪𝗘══════\n🥏 ${response} 🪶\n
-══════𝗕𝗢𝗦𝗖𝗢══════`, event.threadID, messageID);
+    api.getUserInfo(event.senderID, async (err, ret) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      const userName = ret[event.senderID].name;
+      const { response, messageID } = await getAIResponse(input, userName, event.senderID, event.messageID);
+      api.sendMessage(`✰....𝗡𝗜𝗡𝗝𝗔𝗚𝗢 🩵🪽.....✰:\n⧠⧠⧠⧠⧠.✰.✰.⧠⧠⧠⧠⧠\n\n${response}\n\n╰┈┈┈➤⊹⊱✰✫✫✰⊰⊹`, event.threadID, messageID);
+    });
   },
-  onChat: async function ({ event, message }) {
+  onChat: async function ({ api, event, message }) {
     const messageContent = event.body.trim().toLowerCase();
     if (messageContent.startsWith("ai")) {
       const input = messageContent.replace(/^ai\s*/, "").trim();
-      const { response, messageID } = await getAIResponse(input, event.senderID, message.messageID);
-      message.reply(`
+      api.getUserInfo(event.senderID, async (err, ret) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        const userName = ret[event.senderID].name;
+        const { response, messageID } = await getAIResponse(input, userName, event.senderID, message.messageID);
+        message.reply(`[📕] 𝗢𝗣𝗧𝗜𝗠𝗨𝗦 𝗣𝗥𝗜𝗠𝗘.....∆∇ \n⧠⧠⧠⧠⧠ .✰.✰. ⧠⧠⧠⧠⧠\n\n${response}\n\n⧠⧠⧠⧠⧠ .✰.✰. ⧠⧠⧠⧠⧠\n𝗦𝗲𝗻𝗱𝗲𝗿 𝗡𝗮𝗺𝗲:▶${userName} 📕\n━━━━━━━━━━━━━━━━━━`, messageID);
+api.setMessageReaction("📕", event.messageID, () => {}, true);
 
-\n══════𝗔𝗦𝗜𝗙𝗜𝗪𝗘══════
-\n🥏 ${response} 🪶\n
-══════𝗕𝗢𝗦𝗖𝗢══════`, messageID);
+      });
     }
   }
 };
